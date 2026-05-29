@@ -1,1 +1,1 @@
-node api/server.js
+const API_KEY = "09fe9d7a670d45469626acb7e9368eb5";
