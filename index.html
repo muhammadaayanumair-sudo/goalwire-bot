@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOALWIRE</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial;
+      background:#0f172a;
+      color:white;
+    }
+
+    header{
+      text-align:center;
+      padding:20px;
+      background:#111827;
+      font-size:30px;
+      font-weight:bold;
+    }
+
+    .invite{
+      text-align:center;
+      margin:15px;
+    }
+
+    .invite a{
+      background:#22c55e;
+      color:black;
+      padding:12px 18px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:bold;
+      display:inline-block;
+    }
+
+    .section{
+      padding:20px;
+    }
+
+    button{
+      padding:10px;
+      margin:5px;
+      border:none;
+      background:#38bdf8;
+      color:black;
+      font-weight:bold;
+      border-radius:8px;
+    }
+
+    .card{
+      background:#1e293b;
+      padding:15px;
+      margin:10px 0;
+      border-radius:10px;
+    }
+
+    .live{
+      color:#22c55e;
+      font-weight:bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>⚽ GOALWIRE LIVE DASHBOARD</header>
+
+<!-- INVITE BOT -->
+<div class="invite">
+  <a href="https://discord.com/oauth2/authorize?client_id=1509585232070967306&permissions=0&scope=bot%20applications.commands" target="_blank">
+    🤖 Invite GOALWIRE Bot
+  </a>
+</div>
+
+<div class="section">
+
+  <button onclick="loadLive()">🔴 Live Matches</button>
+  <button onclick="loadTable()">🏆 Standings</button>
+  <button onclick="loadScorers()">⚽ Top Scorers</button>
+
+  <div id="output"></div>
+
+</div>
+
+<script>
+
+// 
+const API_KEY = 09fe9d7a670d45469626acb7e9368eb5;
+
+const output = document.getElementById("output");
+
+// 🔴 LIVE MATCHES
+async function loadLive(){
+  const res = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+    headers: { "x-apisports-key": API_KEY }
+  });
+
+  const data = await res.json();
+
+  let html = "<h2>🔴 Live Matches</h2>";
+
+  data.response.slice(0,5).forEach(m => {
+    html += `
+      <div class="card">
+        <b>${m.league.name}</b><br>
+        ⚽ ${m.teams.home.name} ${m.goals.home} - ${m.goals.away} ${m.teams.away.name}<br>
+        ⏱ ${m.fixture.status.elapsed}'
+        <div class="live">LIVE</div>
+      </div>
+    `;
+  });
+
+  output.innerHTML = html;
+}
+
+// 🏆 STANDINGS
+async function loadTable(){
+  const res = await fetch("https://v3.football.api-sports.io/standings?league=39&season=2025", {
+    headers: { "x-apisports-key": API_KEY }
+  });
+
+  const data = await res.json();
+  const table = data.response[0].league.standings[0];
+
+  let html = "<h2>🏆 Premier League Table</h2>";
+
+  table.slice(0,10).forEach(t => {
+    html += `
+      <div class="card">
+        ${t.rank}. ${t.team.name} — ${t.points} pts
+      </div>
+    `;
+  });
+
+  output.innerHTML = html;
+}
+
+// ⚽ TOP SCORERS
+async function loadScorers(){
+  const res = await fetch("https://v3.football.api-sports.io/players/topscorers?league=39&season=2025", {
+    headers: { "x-apisports-key": API_KEY }
+  });
+
+  const data = await res.json();
+
+  let html = "<h2>⚽ Top Scorers</h2>";
+
+  data.response.slice(0,10).forEach(p => {
+    html += `
+      <div class="card">
+        ${p.player.name} — ${p.statistics[0].goals.total} goals
+      </div>
+    `;
+  });
+
+  output.innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
